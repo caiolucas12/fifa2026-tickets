@@ -56,8 +56,9 @@ Quando este epic fechar, **EPIC-001 (parked)** pode ser ativado para roteirizar 
 | S4 | 0.4 | [Admin Dashboard com dados reais](../stories/0.4.story.md) | ✅ Done | 45 min |
 | S5 | 0.5 | [Polish — TD-3 + TD-5 + TD-6](../stories/0.5.story.md) | ✅ Done (CONCERNS) | 30 min |
 | S6 | 0.6 | [Atualizar 48 seleções classificadas](../stories/0.6.story.md) | ✅ Done | 40 min |
+| S7 | 0.7 | [Tabela da Copa (interativa)](../stories/0.7.story.md) | ✅ Approved | 120 min |
 
-> Total estimado: ~180 min. Stories 0.1-0.4 fecharam o escopo principal; 0.5 resolve tech debts do QA gate; 0.6 atualiza dados das seleções para o estado oficial pós-Final Draw FIFA (2025-12-05).
+> Total estimado: ~300 min. Stories 0.1-0.4 fecharam o escopo principal; 0.5 resolve tech debts do QA gate; 0.6 atualiza dados das seleções para o estado oficial pós-Final Draw FIFA (2025-12-05); 0.7 adiciona feature interativa de tabela alimentada por resultados do admin.
 
 ## Success criteria
 

@@ -8,6 +8,21 @@ interface ApiResponse<T> {
   error?: string;
 }
 
+export interface StandingRow {
+  team_id: number;
+  team_name: string;
+  team_code: string;
+  team_flag: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  gf: number;
+  ga: number;
+  gd: number;
+  points: number;
+}
+
 class ApiClient {
   private baseUrl: string;
   private token: string | null = null;
@@ -141,6 +156,11 @@ class ApiClient {
 
   async getGroups() {
     return this.request<{ groups: any[] }>('/teams/groups');
+  }
+
+  // Standings (tabela da Copa)
+  async getStandings() {
+    return this.request<{ standings: Record<string, StandingRow[]> }>('/standings');
   }
 
   // Tickets

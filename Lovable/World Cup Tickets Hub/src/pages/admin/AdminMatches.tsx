@@ -7,6 +7,8 @@ import {
   Calendar,
   Filter,
   Loader2,
+  Flag,
+  RotateCcw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -101,6 +103,8 @@ const AdminMatches: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [closingMatch, setClosingMatch] = useState<Match | null>(null);
+  const [closingScore, setClosingScore] = useState({ home: '', away: '' });
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -224,6 +228,75 @@ const AdminMatches: React.FC = () => {
     }
   };
 
+  const handleOpenClose = (match: Match) => {
+    setClosingMatch(match);
+    setClosingScore({
+      home: match.home_score?.toString() || '',
+      away: match.away_score?.toString() || '',
+    });
+  };
+
+  const handleCloseMatch = async () => {
+    if (!closingMatch) return;
+    const home = parseInt(closingScore.home);
+    const away = parseInt(closingScore.away);
+    if (isNaN(home) || isNaN(away) || home < 0 || away < 0) {
+      toast({ title: 'Erro', description: 'Informe placares válidos (≥ 0)', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    try {
+      const result = await api.updateMatch(closingMatch.id, {
+        home_team_id: closingMatch.home_team_id,
+        away_team_id: closingMatch.away_team_id,
+        stadium_id: closingMatch.stadium_id,
+        date: closingMatch.date ? closingMatch.date.split('T')[0] : '',
+        time: closingMatch.time,
+        stage: closingMatch.stage,
+        group_name: closingMatch.group_name || undefined,
+        home_score: home,
+        away_score: away,
+        status: 'finished',
+      });
+      if (result.error) {
+        toast({ title: 'Erro', description: result.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Sucesso', description: 'Partida encerrada com sucesso' });
+        setClosingMatch(null);
+        loadData();
+      }
+    } catch (err) {
+      toast({ title: 'Erro', description: 'Erro ao encerrar partida', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleReopenMatch = async (match: Match) => {
+    try {
+      const result = await api.updateMatch(match.id, {
+        home_team_id: match.home_team_id,
+        away_team_id: match.away_team_id,
+        stadium_id: match.stadium_id,
+        date: match.date ? match.date.split('T')[0] : '',
+        time: match.time,
+        stage: match.stage,
+        group_name: match.group_name || undefined,
+        home_score: match.home_score ?? undefined,
+        away_score: match.away_score ?? undefined,
+        status: 'scheduled',
+      });
+      if (result.error) {
+        toast({ title: 'Erro', description: result.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Sucesso', description: 'Partida reaberta' });
+        loadData();
+      }
+    } catch (err) {
+      toast({ title: 'Erro', description: 'Erro ao reabrir partida', variant: 'destructive' });
+    }
+  };
+
   const handleDelete = async () => {
     if (!deleteId) return;
 
@@ -315,8 +388,17 @@ const AdminMatches: React.FC = () => {
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{match.home_team_code || 'TBD'}</span>
-                    <span className="text-muted-foreground">vs</span>
+                    {match.status === 'finished' && match.home_score !== null && match.away_score !== null ? (
+                      <span className="font-bold text-primary px-2">
+                        {match.home_score} <span className="text-muted-foreground">×</span> {match.away_score}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">vs</span>
+                    )}
                     <span className="font-medium">{match.away_team_code || 'TBD'}</span>
+                    {match.status === 'finished' && (
+                      <Badge variant="default" className="ml-2 text-xs">Encerrada</Badge>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -341,6 +423,25 @@ const AdminMatches: React.FC = () => {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
+                    {match.status === 'finished' ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleReopenMatch(match)}
+                        title="Reabrir partida"
+                      >
+                        <RotateCcw className="w-4 h-4 text-amber-500" />
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleOpenClose(match)}
+                        title="Encerrar partida"
+                      >
+                        <Flag className="w-4 h-4 text-green-500" />
+                      </Button>
+                    )}
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(match)}>
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -475,6 +576,52 @@ const AdminMatches: React.FC = () => {
               {editingMatch ? 'Atualizar' : 'Salvar'} Jogo
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Encerrar Partida */}
+      <Dialog open={!!closingMatch} onOpenChange={(open) => !open && setClosingMatch(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Encerrar partida</DialogTitle>
+          </DialogHeader>
+          {closingMatch && (
+            <div className="space-y-4 py-2">
+              <div className="text-sm text-muted-foreground text-center">
+                {closingMatch.home_team_name} <span className="text-foreground font-medium">vs</span> {closingMatch.away_team_name}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{closingMatch.home_team_code}</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={closingScore.home}
+                    onChange={(e) => setClosingScore({ ...closingScore, home: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{closingMatch.away_team_code}</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={closingScore.away}
+                    onChange={(e) => setClosingScore({ ...closingScore, away: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2 justify-end pt-2">
+                <Button variant="outline" onClick={() => setClosingMatch(null)} disabled={saving}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleCloseMatch} disabled={saving} className="gold-gradient">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Salvar e encerrar'}
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 

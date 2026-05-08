@@ -13,6 +13,7 @@ const teamsRoutes = require('./routes/teams');
 const ticketsRoutes = require('./routes/tickets');
 const usersRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
+const standingsRoutes = require('./routes/standings');
 
 const app = express();
 
@@ -92,6 +93,7 @@ app.use('/api/teams', teamsRoutes);
 app.use('/api/tickets', ticketsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/standings', standingsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

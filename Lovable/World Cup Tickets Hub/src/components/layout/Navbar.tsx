@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Menu, X, Trophy, Ticket, MapPin, Calendar, Users } from 'lucide-react';
+import { ShoppingCart, User, Menu, X, Trophy, Ticket, MapPin, Calendar, Users, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { href: '/matches', label: 'Jogos', icon: Calendar },
   { href: '/groups', label: 'Grupos', icon: Users },
+  { href: '/standings', label: 'Tabela', icon: BarChart3 },
   { href: '/qualified', label: 'Classificados', icon: Ticket },
   { href: '/stadiums', label: 'Estádios', icon: MapPin },
   { href: '/teams', label: 'Seleções', icon: Trophy },

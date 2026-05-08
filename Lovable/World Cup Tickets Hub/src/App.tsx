@@ -13,6 +13,7 @@ import Stadiums from "./pages/Stadiums";
 import StadiumDetail from "./pages/StadiumDetail";
 import Teams from "./pages/Teams";
 import Groups from "./pages/Groups";
+import Standings from "./pages/Standings";
 import Qualified from "./pages/Qualified";
 import Cart from "./pages/Cart";
 import Login from "./pages/Login";
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/stadiums/:id" element={<Layout><StadiumDetail /></Layout>} />
               <Route path="/teams" element={<Layout><Teams /></Layout>} />
               <Route path="/groups" element={<Layout><Groups /></Layout>} />
+              <Route path="/standings" element={<Layout><Standings /></Layout>} />
               <Route path="/qualified" element={<Layout><Qualified /></Layout>} />
               <Route path="/cart" element={<Layout><Cart /></Layout>} />
               <Route path="/login" element={<Layout><Login /></Layout>} />
