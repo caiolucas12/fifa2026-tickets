@@ -19,7 +19,9 @@ import type { McpToolDefinition } from '@/lib/mcpTools';
 import { llmFetch } from '@/lib/llm/proxy';
 import type { ChatMessage, LlmProvider, LlmTurn, ToolCallRequest, ToolCallResult } from '@/lib/llm/types';
 
-const MODEL = 'gemini-2.0-flash';
+// gemini-2.0-flash saiu do free tier (quota free = 0 em 2026). gemini-2.5-flash
+// é o flash atual com free tier disponível. Sobrescrevível por VITE_GEMINI_MODEL.
+const MODEL = import.meta.env.VITE_GEMINI_MODEL ?? 'gemini-2.5-flash';
 
 interface GeminiPart {
   text?: string;

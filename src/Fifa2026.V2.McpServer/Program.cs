@@ -47,7 +47,11 @@ builder.Services.AddHttpClient("llm", client => client.Timeout = TimeSpan.FromSe
 //   AddMcpServer() → WithHttpTransport() → WithToolsFromAssembly().
 builder.Services
     .AddMcpServer()
-    .WithHttpTransport()
+    // Stateless: cada POST /mcp é autossuficiente (tools/call sem initialize prévio
+    // nem Mcp-Session-Id). O cliente do frontend (src/lib/mcpClient.ts) faz tools/call
+    // single-shot — modo stateful exigiria handshake initialize+session e retornaria
+    // 400 ("A new session can only be created by an initialize request").
+    .WithHttpTransport(options => options.Stateless = true)
     .WithToolsFromAssembly();
 
 // Observabilidade de borda (ADE-000 Inv 5) — no-op sem APPLICATIONINSIGHTS_CONNECTION_STRING.
